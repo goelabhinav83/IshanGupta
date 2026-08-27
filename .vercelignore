@@ -1,3 +1,6 @@
 .env
 .env*.local
 Docs
+Review
+node_modules
+

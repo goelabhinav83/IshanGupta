@@ -222,9 +222,31 @@ assistant needs a real backend API route, which those platforms don't support cl
   Awards, Contact), the floating WhatsApp button, and the floating AI chat widget are built and
   verified working (mobile widths 360–430px and desktop, no horizontal overflow, no console
   errors, chat correctly declines medical questions).
-- The OpenRouter model in `src/lib/openrouter.ts` is `anthropic/claude-haiku-4.5` (via
-  `OPENROUTER_MODEL` env var, overridable) — `anthropic/claude-3.5-haiku` mentioned earlier is no
-  longer a valid OpenRouter model id as of this build.
+- The AI chat uses a **fallback chain of five FREE OpenRouter models**, defined as
+  `DEFAULT_MODEL_CHAIN` in `src/lib/openrouter.ts` and overridable via `OPENROUTER_MODELS`
+  (comma-separated) or `OPENROUTER_MODEL` (primary only). This replaced single-model configs
+  (`openai/gpt-oss-120b`, before that `z-ai/glm-5.2:free`, before that paid
+  `anthropic/claude-haiku-4.5`). The design is driven by three measured constraints:
+  - **Every `:free` model has exactly ONE provider pool**, and pools return
+    `429 upstream_provider_shared_pool` when saturated. Measured: only **1–2 of 8** free models
+    responded at any given moment, and which ones changed between runs minutes apart. The chain
+    therefore lists models on *different* pools — GMICloud, Google AI Studio, Decart,
+    Thinking Machines, AtlasCloud. Two models on the same pool would fail together and buy nothing.
+  - **OpenRouter caps the `models` array at 3** (a longer array is a hard 400). So the chain is
+    split into consecutive batches of 3 and walked under one shared `TOTAL_BUDGET_MS` deadline,
+    rather than a per-batch timeout the visitor would wait through serially.
+  - **Excluded after testing:** `nvidia/nemotron-*:free` return whitespace instead of JSON (they
+    surfaced as 502s after ~20s); `poolside/*` and `cohere/north-mini-code` are code-specialised;
+    `google/lyria-*` are audio; `liquid/lfm-2.5-2.6b` is 2.6B; `openrouter/free` picks a random
+    model per request, so refusal behaviour would vary call to call.
+  - **Latency is variable** (measured 2.3s–13s) because a request may walk several dead pools
+    before one answers. `REQUEST_TIMEOUT_MS` is 25s per round trip, `TOTAL_BUDGET_MS` 40s overall.
+  - **All free models are `is_moderated: false`**, so the medical-advice refusal rests entirely on
+    the system prompt — and *which* model answers now varies per request. Refusal was sampled 5×
+    against a symptom/diagnosis question: 5/5 declined with no diagnosis leakage. **Re-run that
+    sampling whenever the chain changes**, not just a single call.
+  - When the whole chain is down the route returns HTTP 503 with a "busy, try again — or message
+    us on WhatsApp" notice, which the widget shows verbatim.
 - Office hours (Monday – Saturday, 5 PM – 8 PM) are shown in the Contact section and included in
   the AI chat assistant's context so it can answer "when are you open" questions.
 - The primary CTA is labeled **"Request Appointment"** (renamed from "Book a Consultation")
