@@ -8,11 +8,13 @@ to build credibility with prospective patients, communicate his expertise clearl
 easy to get in touch / book a consultation. This is a content-driven brochure site, not a
 patient portal or booking system — no accounts, no PHI, no medical records.
 
-Source content for the site lives in `Docs/Artifacts/` (bio, publications, awards docx files,
-and a headshot photo). Treat those as the raw source of truth; copy/adapt their text into
-structured content within the app rather than parsing docx at runtime.
+Source content for the site lives directly in `Docs/` — `Information.txt` (bio, awards,
+publications, and contact info) and `Photo.jpeg` (headshot). These replaced an earlier
+`Docs/Artifacts/` folder of separate .docx files, which has been removed. Treat `Information.txt`
+as the raw source of truth; copy/adapt its text into structured content within the app rather
+than parsing it at runtime.
 
-## Doctor Profile (source: `Docs/Artifacts/About Dr Ishan.docx`)
+## Doctor Profile (source: `Docs/Information.txt`)
 
 - **Name:** Dr. Ishan Gupta
 - **Specialty:** Pulmonology & Respiratory Medicine
@@ -27,10 +29,9 @@ structured content within the app rather than parsing docx at runtime.
 - **Approach:** Patient-centric, personalized treatment plans, described as compassionate and
   communicative
 
-## Publications (source: `Docs/Artifacts/Publications.docx`)
+## Publications (source: `Docs/Information.txt`)
 
-- Disseminated Histoplasmosis in a patient with Rheumatoid Arthritis and Interstitial Lung
-  Disease
+- Disseminated Histoplasmosis in a patient with Rheumatoid Arthritis and Interstitial Lungs
 - Sarcoidosis: An Unusual Case of Pleural Effusion — *Medical Science*, India, Vol. 9, Issue 10,
   pp. 1736–1737, December 2020
 - Post-trauma Deep-Seated Cutaneous Mucormycosis with Secondary Bacterial Infection and
@@ -40,7 +41,7 @@ structured content within the app rather than parsing docx at runtime.
   Unraveling Sertraline's Role in Acute Lung Injury." *Indian J Chest Dis Allied Sci*, 2026
 - Additional publications/articles in various national and international journals
 
-## Awards & Recognition (source: `Docs/Artifacts/Awards and Reco.docx`)
+## Awards & Recognition (source: `Docs/Information.txt`)
 
 - APJ Abdul Kalam Award for Service Excellence in Pulmonology (Doctor's Day)
 - Member, Indian Chest Society
@@ -52,8 +53,20 @@ structured content within the app rather than parsing docx at runtime.
 
 ## Assets
 
-- `Docs/Artifacts/Photo.jpeg` — professional headshot (white background, suitable for hero/about
+- `Docs/Photo.jpeg` — professional headshot (white background, suitable for hero/about
   sections; may want a second lifestyle/clinic photo eventually but not required for launch)
+
+## Contact Information (source: `Docs/Information.txt`)
+
+- **WhatsApp:** +91 8076674364
+- **Email:** dr.ishangupta90@gmail.com
+- **Clinic address:** Cure Chest Clinic, SCO 71, Sector 28, HUDA Market, Faridabad
+- **Office hours:** Monday – Friday, 6 PM – 9 PM
+
+> **Resolved:** the Contact section (and any local-business structured data) should use the
+> Cure Chest Clinic, Faridabad address above. The bio's mention of "At Apollo Hospitals" refers
+> to a hospital affiliation and stays in the About/bio text, but it is not the location used for
+> contact/directions/booking.
 
 ## Information Architecture
 
@@ -61,14 +74,17 @@ Single-page or lightly-multi-page site (TBD during build, single-page scroll is 
 sufficient for this amount of content):
 
 1. **Home / Hero** — photo, name, title, one-line positioning ("Pulmonology & Respiratory
-   Medicine Specialist, Apollo Hospitals"), primary CTA (Book Appointment / Contact)
+   Medicine Specialist, Apollo Hospitals"), primary CTA ("Request Appointment", scrolls to Contact)
 2. **About** — full bio, qualifications, experience, languages, approach to care
 3. **Expertise** — conditions treated + procedures performed, called out as scannable lists;
    Sleep Apnea called out as a special interest
 4. **Publications** — list of papers, formatted as citations
 5. **Awards & Recognition** — awards, memberships, speaking engagements
-6. **Contact** — clinic location (Apollo Hospitals, New Delhi), contact form or phone/email,
-   map embed if address is available
+6. **Contact** — clinic location (Cure Chest Clinic, Faridabad — see Contact Information
+   section above), office hours (Monday – Friday, 6 PM – 9 PM), an appointment-request form
+   ("Request Appointment") or phone/email, map embed using this address. Submitting the form
+   emails the details directly to Dr. Gupta's email (see Tech Stack) rather than just opening
+   the visitor's own mail client.
 
 Persistent across all pages (not standalone sections): a floating **AI chat widget** and a
 **WhatsApp click-to-chat button**, both described below.
@@ -82,16 +98,18 @@ appearing to give medical advice or diagnoses.
   offered, languages spoken, clinic location/hours, and how to book — i.e. only what's in the
   site's own content.
 - System prompt explicitly instructs the model to **decline** any request for diagnosis, symptom
-  interpretation, or treatment advice, and to redirect those to "please book a consultation or
+  interpretation, or treatment advice, and to redirect those to "please request an appointment or
   message us on WhatsApp" instead.
 - No patient health data should be collected or stored through this chat — keep it stateless
   (no conversation history persisted server-side) to avoid PHI-handling obligations.
 - Implementation: a small chat widget (floating button, bottom-right) backed by a Next.js API
-  route that calls the Claude API with a fixed system prompt containing the site content as
-  context. Reference the `claude-api` skill when implementing the API call (models, streaming,
-  system prompts).
-- Needs an Anthropic API key added as an environment variable / secret before this can go live —
-  not something to commit to the repo.
+  route that calls a model via **OpenRouter** (not the Anthropic API directly) with a fixed
+  system prompt containing the site content as context.
+- API key: `OPENROUTER_API_KEY` is already set in a local `.env` file (gitignored, not committed).
+  Read it server-side only, inside the Next.js API route — never expose it to the client.
+- OpenRouter uses an OpenAI-compatible chat completions format
+  (`https://openrouter.ai/api/v1/chat/completions`); pick a specific model id to call (e.g. a
+  Claude or other model available on OpenRouter) when implementing the route.
 
 ## WhatsApp Integration
 
@@ -106,16 +124,22 @@ appearing to give medical advice or diagnoses.
 
 ## Open Information Needed From User Before Launch
 
-Not present in the source docs — need to collect before the Contact section is real:
-- Phone number and/or email for the practice
-- Exact Apollo Hospitals branch/address in Delhi (there are multiple Apollo locations)
-- Whether there's an existing booking system/link to integrate (e.g. Apollo's own portal) or if
-  a simple contact form is sufficient
-- Any social/professional profile links (LinkedIn, Practo, etc.) to link out to
-- Domain name preference, if one is already owned
-- **WhatsApp Business number** for the click-to-chat button
-- **Anthropic API key** for the AI chat assistant (can be added later, but chat won't function
-  without it)
+Resolved by `Docs/Information.txt`:
+- ~~Phone number and/or email~~ → dr.ishangupta90@gmail.com
+- ~~WhatsApp Business number~~ → +91 8076674364
+- ~~Clinic address~~ → Cure Chest Clinic, SCO 71, Sector 28, HUDA Market, Faridabad — confirmed
+  as the address to use for the Contact section and local-business data
+
+Resolved by the user:
+- ~~Existing booking system to integrate~~ → none; a simple contact form is sufficient
+- ~~Social/professional profile links~~ → none (no LinkedIn/Practo to link out to)
+- ~~Domain name preference~~ → none; use the default `*.vercel.app` domain from Vercel hosting,
+  no custom domain to configure
+
+Resolved:
+- ~~AI chat backend API key~~ → `OPENROUTER_API_KEY` added to local `.env` (gitignored); chat
+  widget will call OpenRouter rather than the Anthropic API directly. This same key will need
+  to be set as an environment variable in Vercel before the chat widget works in production.
 
 ## Tech Stack (decided)
 
@@ -126,12 +150,19 @@ assistant needs a real backend API route, which those platforms don't support cl
 - **Styling:** Tailwind CSS
 - **Content:** structured local content (e.g. `content/doctor.ts`) rather than a CMS — the
   content is small, static, and changes rarely; no CMS overhead needed
-- **Contact form:** static form posting to a hosted form service (e.g. Formspree) to avoid
-  needing a backend for this specific piece; `mailto:`/tel: links as a fallback
-- **AI chat backend:** Next.js API route calling the Claude API (see AI Chat Assistant section)
+- **Contact form ("Request Appointment"):** posts to a Next.js API route (`/api/contact`) which
+  sends the submission by email directly to Dr. Gupta's email via Gmail SMTP (nodemailer),
+  authenticating with `GMAIL_USER` / `GMAIL_APP_PASSWORD` in `.env` (read server-side only).
+  Resend was tried first but rejected — it requires a verified domain to send to anyone other
+  than the Resend account owner's own email, which this no-custom-domain project doesn't have;
+  Gmail SMTP with an App Password needs no domain. A `mailto:`/tel: link is shown only as a
+  fallback in the on-page error state, not as the primary submission path.
+- **AI chat backend:** Next.js API route calling a model via OpenRouter (see AI Chat Assistant
+  section); `OPENROUTER_API_KEY` in `.env`, not the Anthropic API directly
 - **WhatsApp:** client-side `wa.me` link, no backend needed
 - **Hosting:** Vercel (pairs naturally with Next.js, supports API routes, free tier is
-  sufficient for this traffic profile)
+  sufficient for this traffic profile); no custom domain — ships on the default `*.vercel.app`
+  domain
 - **Images:** `next/image` for the headshot and any future photos
 
 ## Design Direction
@@ -141,7 +172,13 @@ assistant needs a real backend API route, which those platforms don't support cl
   sparingly for CTAs
 - Typography: legible, professional serif or clean sans for headings; readable body text sized
   for an older/general-audience readership
-- Mobile-first: most patients will land on this from a phone (search or referral link)
+- **Mobile-first, hard requirement:** most patients will land on this from a phone (search or
+  referral link), so the site must render and look correct on mobile screen sizes, not just
+  desktop. Every section (Hero, About, Expertise, Publications, Awards, Contact), the floating
+  AI chat widget, and the floating WhatsApp button must be usable and visually correct at common
+  phone viewport widths (~360–430px), not just scaled-down desktop layouts. Verify with an
+  actual mobile-width browser check (e.g. dev tools device emulation) before considering any UI
+  work done, not just by eyeballing a desktop viewport.
 - Load `frontend-design` skill guidance when building the actual UI to avoid a templated,
   generic look
 
@@ -150,19 +187,59 @@ assistant needs a real backend API route, which those platforms don't support cl
 1. **Scaffold** — Next.js + TypeScript + Tailwind project at repo root (alongside `Docs/`)
 2. **Content layer** — transcribe bio/publications/awards into structured content files
 3. **Static pages/sections** — build Home, About, Expertise, Publications, Awards, Contact
-   sections per the IA above, using the headshot from `Docs/Artifacts/Photo.jpeg`
-4. **Contact form** — wire up once contact details are confirmed with the user
-5. **WhatsApp button** — floating click-to-chat button once the WhatsApp number is provided
-6. **AI chat widget** — floating widget + API route once the Anthropic API key is available;
-   test that it correctly declines medical-advice questions and redirects appropriately
-7. **Responsive + accessibility pass** — verify mobile layout, color contrast, alt text
-8. **Deploy** — connect to Vercel (or chosen host), verify production build, confirm API key is
-   set as an environment variable there (not committed to the repo)
+   sections per the IA above, using the headshot from `Docs/Photo.jpeg`
+4. **Contact form ("Request Appointment")** — wire up using the confirmed contact details (Cure
+   Chest Clinic address, email, WhatsApp — see Contact Information above); on submit, email the
+   details directly to Dr. Gupta's email via a Next.js API route sending through Gmail SMTP
+5. **WhatsApp button** — floating click-to-chat button using +91 8076674364
+6. **AI chat widget** — floating widget + API route calling OpenRouter (`OPENROUTER_API_KEY`
+   already in local `.env`); test that it correctly declines medical-advice questions and
+   redirects appropriately
+7. **Responsive + accessibility pass** — required, not optional: verify every section, the AI
+   chat widget, and the WhatsApp button render correctly at common mobile widths (~360–430px)
+   as well as tablet/desktop, plus color contrast and alt text
+8. **Deploy** — connect to Vercel, verify production build on the default `*.vercel.app` domain,
+   confirm `OPENROUTER_API_KEY` is set as an environment variable there (not committed to the
+   repo)
 9. **SEO basics** — meta title/description, Open Graph image (headshot), local business
-   structured data (Apollo Hospitals address) once address is confirmed
+   structured data using the Cure Chest Clinic, Faridabad address
 
 ## Working Notes
 
-- No git repo initialized yet — `git init` before first commit.
+- Git repo initialized (`main` branch, initial commit made).
 - Root of this directory (`IshanGupta/`) will hold the actual app code once scaffolded;
   `Docs/` stays as reference source material only, not part of the deployed site.
+- Local `.env` file created with `OPENROUTER_API_KEY` (gitignored via `.gitignore`); the AI chat
+  API route should read this and call OpenRouter, not the Anthropic API directly.
+- **Build steps 1–7 of the Build Plan are done:** Next.js 16 (App Router) + TypeScript +
+  Tailwind v4 scaffolded at the repo root; all sections (Hero, About, Expertise, Publications,
+  Awards, Contact), the floating WhatsApp button, and the floating AI chat widget are built and
+  verified working (mobile widths 360–430px and desktop, no horizontal overflow, no console
+  errors, chat correctly declines medical questions).
+- The OpenRouter model in `src/lib/openrouter.ts` is `anthropic/claude-haiku-4.5` (via
+  `OPENROUTER_MODEL` env var, overridable) — `anthropic/claude-3.5-haiku` mentioned earlier is no
+  longer a valid OpenRouter model id as of this build.
+- Office hours (Monday – Friday, 6 PM – 9 PM) are shown in the Contact section and included in
+  the AI chat assistant's context so it can answer "when are you open" questions.
+- The primary CTA is labeled **"Request Appointment"** (renamed from "Book a Consultation")
+  across the Header and Hero; it still scrolls to `#contact`.
+- Contact form (`src/components/ContactForm.tsx`) posts JSON to the `/api/contact` Next.js API
+  route (`src/app/api/contact/route.ts`), which calls `src/lib/email.ts` to send the submission
+  by email to Dr. Gupta's email address via Gmail SMTP (`nodemailer`, `service: "gmail"`).
+  Requires `GMAIL_USER` (the sending Gmail account) and `GMAIL_APP_PASSWORD` (a Google App
+  Password for that account — needs 2-Step Verification enabled, generate at
+  https://myaccount.google.com/apppasswords) in `.env` (not committed). Resend/`RESEND_API_KEY`
+  and `NEXT_PUBLIC_FORM_ENDPOINT`/Formspree are no longer used — confirmed live that Resend
+  blocks sending to anyone but the account owner without a verified domain.
+- Remaining before launch (Build Plan steps 8–9): deploy to Vercel, set `OPENROUTER_API_KEY`,
+  `GMAIL_USER`, `GMAIL_APP_PASSWORD` (and optionally `NEXT_PUBLIC_SITE_URL`) as Vercel env vars.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

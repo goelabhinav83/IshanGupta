@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #14282f;
+  --paper: #f8faf9;
+  --teal-900: #0b4a46;
+  --teal-500: #2f8f86;
+  --mist: #dceeec;
+  --coral: #e2593f;
+  --whatsapp: #25d366;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-teal-900: var(--teal-900);
+  --color-teal-500: var(--teal-500);
+  --color-mist: var(--mist);
+  --color-coral: var(--coral);
+  --color-whatsapp: var(--whatsapp);
+
+  --font-display: var(--font-source-serif), "Iowan Old Style", serif;
+  --font-body: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), "SFMono-Regular", monospace;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Breath-rhythm signature motif: a slow inhale/exhale pulse used behind the
+   hero and as a divider. Reduced to a static line under prefers-reduced-motion
+   via the rule above. */
+@keyframes breathe-draw {
+  0% {
+    stroke-dashoffset: 240;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.breath-line path {
+  animation: breathe-draw 4.2s ease-in-out infinite alternate;
+}
