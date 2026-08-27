@@ -10,7 +10,10 @@ export default function Footer() {
           <p className="text-sm text-white/70 mt-1">{doctor.specialty}</p>
         </div>
         <div className="flex flex-col gap-1 text-sm sm:text-right">
-          <a href={`mailto:${contact.email}`} className="hover:text-white transition-colors">
+          <a
+            href={`mailto:${contact.email}`}
+            className="inline-flex min-h-11 items-center transition-colors hover:text-white sm:justify-end"
+          >
             {contact.email}
           </a>
           <p className="text-white/60">{contact.fullAddress}</p>

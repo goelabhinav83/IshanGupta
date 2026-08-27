@@ -32,10 +32,10 @@ export default function Contact() {
               </p>
 
               <div className="mt-5 flex flex-col gap-3 font-mono text-sm">
-                <a href={`mailto:${contact.email}`} className="text-teal-500 hover:text-teal-900">
+                <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 items-center text-teal-900 underline decoration-teal-900/30 underline-offset-2 hover:decoration-teal-900">
                   {contact.email}
                 </a>
-                <a href={waHref} target="_blank" rel="noopener noreferrer" className="text-teal-500 hover:text-teal-900">
+                <a href={waHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-teal-900 underline decoration-teal-900/30 underline-offset-2 hover:decoration-teal-900">
                   {contact.whatsappDisplay} (WhatsApp)
                 </a>
               </div>

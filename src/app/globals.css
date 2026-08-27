@@ -3,10 +3,14 @@
 :root {
   --ink: #14282f;
   --paper: #f8faf9;
+  /* Contrast-checked against --paper and --mist for WCAG AA (4.5:1 normal text).
+     teal-500: 5.58:1 on paper, 4.87:1 on mist.
+     coral:    4.96:1 for white text on it, 4.73:1 as text on paper. */
   --teal-900: #0b4a46;
-  --teal-500: #2f8f86;
+  --teal-500: #20706a;
   --mist: #dceeec;
-  --coral: #e2593f;
+  --coral: #c2472f;
+  --coral-dark: #a33b27;
   --whatsapp: #25d366;
 }
 
@@ -17,6 +21,7 @@
   --color-teal-500: var(--teal-500);
   --color-mist: var(--mist);
   --color-coral: var(--coral);
+  --color-coral-dark: var(--coral-dark);
   --color-whatsapp: var(--whatsapp);
 
   --font-display: var(--font-source-serif), "Iowan Old Style", serif;

@@ -6,7 +6,7 @@ import BreathLine from "@/components/ui/BreathLine";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden bg-mist/60">
+    <section id="top" className="relative overflow-hidden bg-mist/60">
       <Container className="grid grid-cols-1 items-center gap-10 py-14 sm:py-20 md:grid-cols-[1.15fr_0.85fr] md:gap-12 lg:py-24">
         <div>
           <p className="font-mono text-xs tracking-[0.2em] uppercase text-teal-500 mb-4">

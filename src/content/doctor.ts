@@ -7,6 +7,8 @@ export const doctor = {
   languages: ["English", "Hindi", "Punjabi"],
   tagline: "Pulmonology & Respiratory Medicine Specialist, Apollo Hospitals",
   photo: "/images/dr-ishan-gupta.jpg",
+  // 1200x630 social card, generated from the headshot above.
+  ogImage: "/images/og-dr-ishan-gupta.jpg",
 } as const;
 
 export const bio = [
@@ -102,6 +104,8 @@ export const contact = {
   addressLines: ["SCO 71, Sector 28", "HUDA Market, Faridabad, Haryana"],
   fullAddress: "Cure Chest Clinic, SCO 71, Sector 28, HUDA Market, Faridabad, Haryana",
   officeHours: "Monday – Saturday, 5 PM – 8 PM",
+  // Same hours in schema.org format, for the LocalBusiness structured data.
+  officeHoursSchema: "Mo-Sa 17:00-20:00",
 } as const;
 
 export const whatsappPrefilledMessage =

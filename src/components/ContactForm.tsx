@@ -33,22 +33,44 @@ export default function ContactForm() {
     const href = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(text)}`;
     const win = window.open(href, "_blank", "noopener,noreferrer");
 
-    if (win) {
-      setStatus("success");
-      form.reset();
-    } else {
-      setWaHref(href);
-      setStatus("blocked");
-    }
+    // Kept in both outcomes: a truthy handle means the tab opened, not that
+    // WhatsApp actually loaded, so the fallback link stays available either way.
+    setWaHref(href);
+    setStatus(win ? "success" : "blocked");
   }
 
   if (status === "success") {
     return (
       <div className="rounded-2xl bg-teal-900/5 p-6 text-teal-900">
-        <p className="font-medium">WhatsApp is opening in a new tab.</p>
+        <p className="font-medium">WhatsApp should have opened in a new tab.</p>
         <p className="mt-1 text-sm text-ink/70">
-          Your appointment request is pre-filled there — just hit send to reach Dr. Gupta.
+          Your appointment request is pre-filled there — just hit send to reach Dr. Gupta. If the
+          tab didn&apos;t open,{" "}
+          {waHref && (
+            <>
+              <a
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-teal-900"
+              >
+                open WhatsApp directly
+              </a>{" "}
+              or{" "}
+            </>
+          )}
+          message us at {contact.whatsappDisplay}.
         </p>
+        <button
+          type="button"
+          onClick={() => {
+            setStatus("idle");
+            setWaHref(null);
+          }}
+          className="mt-4 text-sm font-medium text-teal-900 underline hover:text-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-900"
+        >
+          Send another request
+        </button>
       </div>
     );
   }
