@@ -4,12 +4,13 @@ import { useState } from "react";
 import { contact } from "@/content/doctor";
 import Button from "@/components/ui/Button";
 
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "success" | "blocked";
 
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
+  const [waHref, setWaHref] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
@@ -18,27 +19,35 @@ export default function ContactForm() {
     const phone = String(data.get("phone") || "");
     const message = String(data.get("message") || "");
 
-    setStatus("submitting");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message }),
-      });
-      if (!res.ok) throw new Error("Request failed");
+    const text = [
+      "Hi Dr. Gupta, I'd like to request an appointment.",
+      "",
+      `Name: ${name}`,
+      `Phone: ${phone || "—"}`,
+      `Email: ${email}`,
+      "",
+      "Message:",
+      message,
+    ].join("\n");
+
+    const href = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(text)}`;
+    const win = window.open(href, "_blank", "noopener,noreferrer");
+
+    if (win) {
       setStatus("success");
       form.reset();
-    } catch {
-      setStatus("error");
+    } else {
+      setWaHref(href);
+      setStatus("blocked");
     }
   }
 
   if (status === "success") {
     return (
       <div className="rounded-2xl bg-teal-900/5 p-6 text-teal-900">
-        <p className="font-medium">Thank you — your appointment request is on its way.</p>
+        <p className="font-medium">WhatsApp is opening in a new tab.</p>
         <p className="mt-1 text-sm text-ink/70">
-          We&rsquo;ll get back to you shortly. For a faster response, message us on WhatsApp.
+          Your appointment request is pre-filled there — just hit send to reach Dr. Gupta.
         </p>
       </div>
     );
@@ -102,15 +111,18 @@ export default function ContactForm() {
         />
       </div>
 
-      {status === "error" && (
+      {status === "blocked" && waHref && (
         <p className="text-sm text-coral">
-          Something went wrong sending your message. Please email {contact.email} or message us
-          on WhatsApp instead.
+          Your browser blocked the WhatsApp pop-up.{" "}
+          <a href={waHref} target="_blank" rel="noopener noreferrer" className="underline">
+            Tap here to open WhatsApp
+          </a>{" "}
+          instead, or message us at {contact.whatsappDisplay}.
         </p>
       )}
 
-      <Button type="submit" variant="primary" className="w-full sm:w-auto" disabled={status === "submitting"}>
-        {status === "submitting" ? "Sending…" : "Send message"}
+      <Button type="submit" variant="primary" className="w-full sm:w-auto">
+        Send via WhatsApp
       </Button>
     </form>
   );

@@ -61,7 +61,7 @@ than parsing it at runtime.
 - **WhatsApp:** +91 8076674364
 - **Email:** dr.ishangupta90@gmail.com
 - **Clinic address:** Cure Chest Clinic, SCO 71, Sector 28, HUDA Market, Faridabad
-- **Office hours:** Monday – Friday, 6 PM – 9 PM
+- **Office hours:** Monday – Saturday, 5 PM – 8 PM
 
 > **Resolved:** the Contact section (and any local-business structured data) should use the
 > Cure Chest Clinic, Faridabad address above. The bio's mention of "At Apollo Hospitals" refers
@@ -81,10 +81,12 @@ sufficient for this amount of content):
 4. **Publications** — list of papers, formatted as citations
 5. **Awards & Recognition** — awards, memberships, speaking engagements
 6. **Contact** — clinic location (Cure Chest Clinic, Faridabad — see Contact Information
-   section above), office hours (Monday – Friday, 6 PM – 9 PM), an appointment-request form
+   section above), office hours (Monday – Saturday, 5 PM – 8 PM), an appointment-request form
    ("Request Appointment") or phone/email, map embed using this address. Submitting the form
-   emails the details directly to Dr. Gupta's email (see Tech Stack) rather than just opening
-   the visitor's own mail client.
+   opens WhatsApp (via a `wa.me` link, see Tech Stack) with the visitor's details pre-filled as
+   the message, rather than emailing Dr. Gupta or opening the visitor's own mail client. The
+   visitor still has to tap Send inside WhatsApp — this is client-side only, no backend
+   delivery.
 
 Persistent across all pages (not standalone sections): a floating **AI chat widget** and a
 **WhatsApp click-to-chat button**, both described below.
@@ -150,13 +152,16 @@ assistant needs a real backend API route, which those platforms don't support cl
 - **Styling:** Tailwind CSS
 - **Content:** structured local content (e.g. `content/doctor.ts`) rather than a CMS — the
   content is small, static, and changes rarely; no CMS overhead needed
-- **Contact form ("Request Appointment"):** posts to a Next.js API route (`/api/contact`) which
-  sends the submission by email directly to Dr. Gupta's email via Gmail SMTP (nodemailer),
-  authenticating with `GMAIL_USER` / `GMAIL_APP_PASSWORD` in `.env` (read server-side only).
-  Resend was tried first but rejected — it requires a verified domain to send to anyone other
-  than the Resend account owner's own email, which this no-custom-domain project doesn't have;
-  Gmail SMTP with an App Password needs no domain. A `mailto:`/tel: link is shown only as a
-  fallback in the on-page error state, not as the primary submission path.
+- **Contact form ("Request Appointment"):** client-side only, no backend route. On submit, the
+  form builds a `wa.me/<number>?text=<encoded details>` link from the entered name, phone,
+  email, and message, and opens it in a new tab via `window.open` — the visitor then taps Send
+  inside WhatsApp to actually deliver it to Dr. Gupta. This replaced an earlier Gmail SMTP
+  (nodemailer) implementation that emailed submissions directly to Dr. Gupta's email; that
+  required `GMAIL_USER` / `GMAIL_APP_PASSWORD` env vars and a `/api/contact` route, both now
+  removed. (Resend was tried even earlier and rejected — it requires a verified domain to send
+  to anyone other than the Resend account owner's own email, which this no-custom-domain
+  project doesn't have.) If `window.open` is blocked (popup blocker), the form falls back to
+  showing a plain clickable `wa.me` link instead of failing silently.
 - **AI chat backend:** Next.js API route calling a model via OpenRouter (see AI Chat Assistant
   section); `OPENROUTER_API_KEY` in `.env`, not the Anthropic API directly
 - **WhatsApp:** client-side `wa.me` link, no backend needed
@@ -189,8 +194,9 @@ assistant needs a real backend API route, which those platforms don't support cl
 3. **Static pages/sections** — build Home, About, Expertise, Publications, Awards, Contact
    sections per the IA above, using the headshot from `Docs/Photo.jpeg`
 4. **Contact form ("Request Appointment")** — wire up using the confirmed contact details (Cure
-   Chest Clinic address, email, WhatsApp — see Contact Information above); on submit, email the
-   details directly to Dr. Gupta's email via a Next.js API route sending through Gmail SMTP
+   Chest Clinic address, email, WhatsApp — see Contact Information above); on submit, build a
+   `wa.me` link from the entered details and open it in a new tab so the visitor sends it via
+   WhatsApp (client-side only, no backend)
 5. **WhatsApp button** — floating click-to-chat button using +91 8076674364
 6. **AI chat widget** — floating widget + API route calling OpenRouter (`OPENROUTER_API_KEY`
    already in local `.env`); test that it correctly declines medical-advice questions and
@@ -219,20 +225,21 @@ assistant needs a real backend API route, which those platforms don't support cl
 - The OpenRouter model in `src/lib/openrouter.ts` is `anthropic/claude-haiku-4.5` (via
   `OPENROUTER_MODEL` env var, overridable) — `anthropic/claude-3.5-haiku` mentioned earlier is no
   longer a valid OpenRouter model id as of this build.
-- Office hours (Monday – Friday, 6 PM – 9 PM) are shown in the Contact section and included in
+- Office hours (Monday – Saturday, 5 PM – 8 PM) are shown in the Contact section and included in
   the AI chat assistant's context so it can answer "when are you open" questions.
 - The primary CTA is labeled **"Request Appointment"** (renamed from "Book a Consultation")
   across the Header and Hero; it still scrolls to `#contact`.
-- Contact form (`src/components/ContactForm.tsx`) posts JSON to the `/api/contact` Next.js API
-  route (`src/app/api/contact/route.ts`), which calls `src/lib/email.ts` to send the submission
-  by email to Dr. Gupta's email address via Gmail SMTP (`nodemailer`, `service: "gmail"`).
-  Requires `GMAIL_USER` (the sending Gmail account) and `GMAIL_APP_PASSWORD` (a Google App
-  Password for that account — needs 2-Step Verification enabled, generate at
-  https://myaccount.google.com/apppasswords) in `.env` (not committed). Resend/`RESEND_API_KEY`
-  and `NEXT_PUBLIC_FORM_ENDPOINT`/Formspree are no longer used — confirmed live that Resend
-  blocks sending to anyone but the account owner without a verified domain.
-- Remaining before launch (Build Plan steps 8–9): deploy to Vercel, set `OPENROUTER_API_KEY`,
-  `GMAIL_USER`, `GMAIL_APP_PASSWORD` (and optionally `NEXT_PUBLIC_SITE_URL`) as Vercel env vars.
+- Contact form (`src/components/ContactForm.tsx`) is client-side only: on submit it builds a
+  `wa.me/<number>?text=<encoded details>` link from the entered name, phone, email, and message,
+  and opens it via `window.open` so the visitor sends it themselves inside WhatsApp. This
+  replaced the earlier Gmail SMTP (`nodemailer`) implementation — the `/api/contact` API route
+  and `src/lib/email.ts` were removed, along with the `nodemailer`/`@types/nodemailer`
+  dependencies and the `GMAIL_USER`/`GMAIL_APP_PASSWORD` env vars, none of which are needed
+  anymore. Resend/`RESEND_API_KEY` and `NEXT_PUBLIC_FORM_ENDPOINT`/Formspree were an earlier,
+  already-abandoned attempt before that.
+- Remaining before launch (Build Plan steps 8–9): deploy to Vercel, set `OPENROUTER_API_KEY`
+  (and optionally `NEXT_PUBLIC_SITE_URL`) as Vercel env vars. No email-related env vars are
+  needed anymore.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

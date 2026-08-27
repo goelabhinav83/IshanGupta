@@ -101,7 +101,7 @@ export const contact = {
   clinicName: "Cure Chest Clinic",
   addressLines: ["SCO 71, Sector 28", "HUDA Market, Faridabad, Haryana"],
   fullAddress: "Cure Chest Clinic, SCO 71, Sector 28, HUDA Market, Faridabad, Haryana",
-  officeHours: "Monday – Friday, 6 PM – 9 PM",
+  officeHours: "Monday – Saturday, 5 PM – 8 PM",
 } as const;
 
 export const whatsappPrefilledMessage =
