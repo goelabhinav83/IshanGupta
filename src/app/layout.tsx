@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { contact, doctor } from "@/content/doctor";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/constants";
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <WhatsAppButton />
         <ChatWidget />
+        <Analytics />
       </body>
     </html>
   );
