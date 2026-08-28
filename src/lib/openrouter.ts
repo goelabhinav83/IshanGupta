@@ -149,6 +149,19 @@ Practice information you may use to answer questions:
 ${buildSiteContext()}`;
 }
 
+/**
+ * True when an OpenRouter error body names the upstream provider that failed,
+ * which marks the failure as the pool's rather than ours.
+ */
+function isProviderSideError(errorText: string): boolean {
+  try {
+    const parsed = JSON.parse(errorText);
+    return Boolean(parsed?.error?.metadata?.provider_name);
+  } catch {
+    return false;
+  }
+}
+
 /** One request against up to MAX_MODELS_PER_REQUEST models. */
 async function attemptBatch(
   apiKey: string,
@@ -181,8 +194,17 @@ async function attemptBatch(
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
-    if (response.status === 429) {
-      throw new OpenRouterBusyError(`Rate-limited upstream: ${errorText}`);
+    if (response.status === 429 || response.status >= 500) {
+      throw new OpenRouterBusyError(`Upstream unavailable (${response.status}): ${errorText}`);
+    }
+    // OpenRouter reports a failure inside the provider itself as a 4xx whose
+    // body carries `metadata.provider_name` — observed in the wild as
+    // AtlasCloud returning a bare 400 "bad request". That is the provider
+    // being unhealthy, not a fault in our request, so the next batch (on a
+    // different pool) is worth trying. A 400 without provider metadata, or a
+    // 401/403, really is ours and aborts the chain immediately.
+    if (isProviderSideError(errorText)) {
+      throw new OpenRouterBusyError(`Provider error (${response.status}): ${errorText}`);
     }
     throw new Error(`OpenRouter request failed (${response.status}): ${errorText}`);
   }
