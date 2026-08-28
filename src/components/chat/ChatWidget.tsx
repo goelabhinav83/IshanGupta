@@ -104,7 +104,7 @@ export default function ChatWidget() {
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close chat" : "Open chat assistant"}
         aria-expanded={open}
-        className="fixed bottom-[88px] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-teal-900 text-white shadow-lg shadow-black/20 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-900 sm:bottom-[104px] sm:right-6"
+        className="fab-stack-2 fixed z-40 flex items-center justify-center rounded-full bg-teal-900 text-white shadow-lg shadow-black/20 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-900"
       >
         <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
           {open ? (
@@ -124,7 +124,7 @@ export default function ChatWidget() {
         <div
           role="dialog"
           aria-label="Practice FAQ chat"
-          className="fixed bottom-[156px] right-5 z-40 flex max-h-[calc(100vh-172px)] h-[30rem] w-[min(22.5rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-teal-900/10 bg-paper shadow-2xl shadow-black/20 sm:bottom-[172px] sm:right-6 sm:max-h-[calc(100vh-188px)]"
+          className="fab-panel fixed z-40 flex h-[30rem] w-[min(22.5rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-teal-900/10 bg-paper shadow-2xl shadow-black/20"
         >
           <div className="flex items-start justify-between gap-3 bg-teal-900 px-4 py-3">
             <div>
@@ -165,7 +165,7 @@ export default function ChatWidget() {
               maxLength={MAX_INPUT_LENGTH}
               placeholder="Ask about hours, location, conditions…"
               aria-label="Message"
-              className="min-w-0 flex-1 rounded-full border border-teal-900/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30"
+              className="min-w-0 flex-1 rounded-full border border-teal-900/15 bg-white px-4 py-2.5 text-base outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/30 sm:text-sm"
             />
             <button
               type="submit"

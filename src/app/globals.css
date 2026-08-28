@@ -29,10 +29,30 @@
   --font-mono: var(--font-plex-mono), "SFMono-Regular", monospace;
 }
 
+html {
+  /* iOS Safari inflates body text when a phone is turned to landscape unless
+     this is pinned, which silently breaks the type scale mid-session. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
+  /* The default grey flash on tap reads as a rendering glitch on a calm
+     palette; a faint teal wash matches the rest of the interface. */
+  -webkit-tap-highlight-color: rgb(32 112 106 / 0.12);
+}
+
+/* Long unbroken strings — an email address, a journal citation — must wrap
+   rather than force the page sideways at 360px. */
+body {
+  overflow-wrap: break-word;
+}
+
+::placeholder {
+  color: rgb(20 40 47 / 0.5);
 }
 
 h1,
@@ -61,6 +81,51 @@ html {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* Floating stack: WhatsApp sits at the bottom, the chat button above it, the
+   chat panel above that. Those three offsets have to stay in lockstep, so they
+   are derived from one set of tokens rather than repeated as literals in three
+   components. `env(safe-area-inset-bottom)` lifts the stack clear of the
+   iPhone home indicator, which otherwise sits on top of the WhatsApp button. */
+:root {
+  --fab-size: 3.25rem;
+  --fab-gap: 0.75rem;
+  --fab-inset: 1.25rem;
+  --fab-bottom: calc(var(--fab-inset) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 640px) {
+  :root {
+    --fab-size: 3.5rem;
+    --fab-inset: 1.5rem;
+  }
+}
+
+.fab-stack-1 {
+  bottom: var(--fab-bottom);
+  right: var(--fab-inset);
+  height: var(--fab-size);
+  width: var(--fab-size);
+}
+
+.fab-stack-2 {
+  bottom: calc(var(--fab-bottom) + var(--fab-size) + var(--fab-gap));
+  right: var(--fab-inset);
+  height: var(--fab-size);
+  width: var(--fab-size);
+}
+
+.fab-panel {
+  bottom: calc(var(--fab-bottom) + 2 * (var(--fab-size) + var(--fab-gap)));
+  right: var(--fab-inset);
+  /* Reserve the sticky header's height as well, so on a short phone the panel
+     stops below the site header instead of covering it. Uses dvh so the panel
+     resizes with mobile Safari's collapsing URL bar rather than being sized
+     against a viewport height that isn't currently visible. */
+  max-height: calc(
+    100dvh - var(--fab-bottom) - 2 * (var(--fab-size) + var(--fab-gap)) - 4.5rem
+  );
 }
 
 /* Breath-rhythm signature motif: a slow inhale/exhale pulse used behind the

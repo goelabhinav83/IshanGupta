@@ -247,6 +247,26 @@ assistant needs a real backend API route, which those platforms don't support cl
     sampling whenever the chain changes**, not just a single call.
   - When the whole chain is down the route returns HTTP 503 with a "busy, try again — or message
     us on WhatsApp" notice, which the widget shows verbatim.
+  - A 4xx whose body carries `error.metadata.provider_name` is the *provider* failing, not a bad
+    request from us (observed: AtlasCloud returning a bare 400), so it falls through to the next
+    batch instead of aborting. 5xx is treated the same as 429. A 400 without provider metadata,
+    and any 401/403, still aborts the chain immediately — those are ours.
+  - Every model in the chain answers in Markdown regardless of the system prompt, so
+    `ChatMessage.tsx` carries a deliberately tiny renderer for the only two constructs that
+    actually appear (bold/italic spans and hyphen bullets). It builds React nodes rather than
+    HTML, so nothing a model returns can inject markup.
+- A mobile look-and-feel pass followed the functional responsive pass. `npm run mobile-check`
+  (`scripts/mobile-check.mjs`, puppeteer-core against the locally installed Chrome) covers the
+  measurable failures — overflow, tap targets, floating-button overlap, chat panel fit — and
+  passes; the visual work on top of that was: a lead-paragraph treatment on the About bio (it is
+  ~900px of unbroken prose on a phone), sans rather than mono values in the credentials card so
+  the two columns stop wrapping raggedly, a smaller/tighter hero eyebrow so it holds one line at
+  360px, mobile gaps cut from 40px to 24–32px between stacked cards, hairline borders on the
+  `bg-paper` cards (they had no perceptible edge against `bg-paper`/`bg-mist/50`), `z=16` on the
+  Google Maps embed (it defaulted to a metro-wide zoom, useless in a 224px-tall iframe), and
+  ~112px of bottom padding on the footer so the floating buttons stop covering the address at the
+  end of the page. **The map pin's exact position has not been confirmed against the real clinic**
+  — the embed geocodes the address string.
 - Office hours (Monday – Saturday, 5 PM – 8 PM) are shown in the Contact section and included in
   the AI chat assistant's context so it can answer "when are you open" questions.
 - The primary CTA is labeled **"Request Appointment"** (renamed from "Book a Consultation")

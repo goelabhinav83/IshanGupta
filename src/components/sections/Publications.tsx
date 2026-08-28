@@ -4,7 +4,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 
 export default function Publications() {
   return (
-    <section id="publications" className="scroll-mt-20 py-16 sm:py-24">
+    <section id="publications" className="scroll-mt-20 py-14 sm:py-24">
       <Container>
         <SectionHeading eyebrow="Publications" title="Research & case reports" />
 

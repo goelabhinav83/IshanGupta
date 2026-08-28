@@ -20,8 +20,11 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-paper/90 backdrop-blur border-b border-teal-900/10">
-      <Container className="flex items-center justify-between py-3.5">
-        <a href="#top" className="font-display text-lg font-semibold text-teal-900">
+      <Container className="flex items-center justify-between py-2">
+        <a
+          href="#top"
+          className="inline-flex min-h-11 items-center font-display text-lg font-semibold text-teal-900"
+        >
           {doctor.name}
         </a>
 

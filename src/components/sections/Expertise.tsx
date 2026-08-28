@@ -2,12 +2,21 @@ import { conditionsTreated, procedures, specialInterest } from "@/content/doctor
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 
+/**
+ * Chips rather than one-per-row bullets. Most of these entries are a single
+ * word ("Asthma", "COPD", "EBUS"), so a stacked list spent a full 44px row on
+ * each and pushed the section well past a phone screen; wrapping them inline
+ * fits two or three per row and scans faster. Kept at 16px with generous
+ * padding for the older readership this site is written for.
+ */
 function List({ items }: { items: string[] }) {
   return (
-    <ul className="space-y-3">
+    <ul className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <li key={item} className="flex items-start gap-3 text-base text-ink/85">
-          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-500" aria-hidden="true" />
+        <li
+          key={item}
+          className="rounded-full border border-teal-900/10 bg-mist/70 px-3.5 py-2 text-base leading-snug text-ink/85"
+        >
           {item}
         </li>
       ))}
@@ -17,19 +26,19 @@ function List({ items }: { items: string[] }) {
 
 export default function Expertise() {
   return (
-    <section id="expertise" className="scroll-mt-20 bg-mist/50 py-16 sm:py-24">
+    <section id="expertise" className="scroll-mt-20 bg-mist/50 py-14 sm:py-24">
       <Container>
         <SectionHeading eyebrow="Expertise" title="Conditions treated & procedures performed" />
 
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2">
-          <div className="rounded-2xl bg-paper p-6 shadow-sm shadow-teal-900/5 sm:p-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
+          <div className="rounded-2xl border border-teal-900/10 bg-paper p-6 shadow-sm shadow-teal-900/5 sm:p-8">
             <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-teal-900">
               Conditions treated
             </h3>
             <List items={conditionsTreated} />
           </div>
 
-          <div className="rounded-2xl bg-paper p-6 shadow-sm shadow-teal-900/5 sm:p-8">
+          <div className="rounded-2xl border border-teal-900/10 bg-paper p-6 shadow-sm shadow-teal-900/5 sm:p-8">
             <h3 className="mb-5 text-sm font-semibold uppercase tracking-wide text-teal-900">
               Procedures performed
             </h3>

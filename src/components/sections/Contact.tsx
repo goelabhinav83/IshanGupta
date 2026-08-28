@@ -4,16 +4,22 @@ import SectionHeading from "@/components/ui/SectionHeading";
 import ContactForm from "@/components/ContactForm";
 
 export default function Contact() {
-  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(contact.fullAddress)}&output=embed`;
+  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(contact.fullAddress)}&z=16&output=embed`;
   const waHref = `https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(whatsappPrefilledMessage)}`;
 
   return (
-    <section id="contact" className="scroll-mt-20 py-16 sm:py-24">
+    <section id="contact" className="scroll-mt-20 py-14 sm:py-24">
       <Container>
         <SectionHeading eyebrow="Contact" title="Request an appointment" />
 
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-          <div className="space-y-6">
+        {/*
+          The section's job is the appointment request, and every CTA on the
+          page scrolls here — so on a phone the form comes first and the clinic
+          details and map follow. On desktop there is room side by side and the
+          details keep their original left-hand position.
+        */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="order-2 space-y-6 lg:order-1">
             <div className="rounded-2xl bg-mist/60 p-6 sm:p-8">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-teal-900">
                 {contact.clinicName}
@@ -31,7 +37,7 @@ export default function Contact() {
                 {contact.officeHours}
               </p>
 
-              <div className="mt-5 flex flex-col gap-3 font-mono text-sm">
+              <div className="mt-4 flex flex-col font-mono text-sm">
                 <a href={`mailto:${contact.email}`} className="inline-flex min-h-11 items-center text-teal-900 underline decoration-teal-900/30 underline-offset-2 hover:decoration-teal-900">
                   {contact.email}
                 </a>
@@ -48,13 +54,13 @@ export default function Contact() {
                 width="100%"
                 height="280"
                 loading="lazy"
-                className="block"
+                className="block h-56 w-full sm:h-[280px]"
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
           </div>
 
-          <div className="rounded-2xl bg-paper p-6 shadow-sm shadow-teal-900/5 sm:p-8">
+          <div className="order-1 rounded-2xl border border-teal-900/10 bg-paper p-6 shadow-sm shadow-teal-900/5 sm:p-8 lg:order-2">
             <ContactForm />
           </div>
         </div>

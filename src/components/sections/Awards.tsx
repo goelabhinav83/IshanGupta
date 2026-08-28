@@ -19,11 +19,11 @@ function Group({ title, items }: { title: string; items: string[] }) {
 
 export default function Awards() {
   return (
-    <section id="awards" className="scroll-mt-20 bg-mist/50 py-16 sm:py-24">
+    <section id="awards" className="scroll-mt-20 bg-mist/50 py-14 sm:py-24">
       <Container>
         <SectionHeading eyebrow="Recognition" title="Awards, memberships & speaking" />
 
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-10">
           <Group title="Awards" items={[...awards]} />
           <Group title="Memberships" items={[...memberships]} />
           <Group title="Speaking engagements" items={[...speakingEngagements]} />
