@@ -279,9 +279,20 @@ assistant needs a real backend API route, which those platforms don't support cl
   dependencies and the `GMAIL_USER`/`GMAIL_APP_PASSWORD` env vars, none of which are needed
   anymore. Resend/`RESEND_API_KEY` and `NEXT_PUBLIC_FORM_ENDPOINT`/Formspree were an earlier,
   already-abandoned attempt before that.
-- Remaining before launch (Build Plan steps 8–9): deploy to Vercel, set `OPENROUTER_API_KEY`
-  (and optionally `NEXT_PUBLIC_SITE_URL`) as Vercel env vars. No email-related env vars are
-  needed anymore.
+- Build Plan step 8 (Deploy) is done: the site is live on Vercel at the default
+  `https://ishan-gupta-eight.vercel.app` domain, with `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`,
+  and `NEXT_PUBLIC_SITE_URL` set as Vercel env vars (Production + Preview). No email-related env
+  vars are needed anymore.
+- Build Plan step 9 (SEO basics) is done: meta title/description, canonical URL, Open Graph +
+  Twitter Card tags (1200×630 image), and `Physician`/`MedicalClinic` JSON-LD structured data are
+  all in `src/app/layout.tsx`; `robots.ts` and `sitemap.ts` generate `robots.txt`/`sitemap.xml`.
+  On top of that, the site is verified in **Google Search Console** via a
+  `verification: { google: "..." }` entry in `layout.tsx`'s `metadata` export (site added as a
+  URL-prefix property, verified with the HTML-tag method since there's no custom domain to use a
+  DNS record with). Sitemap submission and an initial "Request Indexing" pass in Search Console
+  are follow-ups the user does directly in the Search Console UI, not something committed to the
+  repo. If the verification code ever needs to change (e.g. re-verifying under a different Google
+  account), swap the `content` value there and redeploy.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

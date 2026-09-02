@@ -32,6 +32,7 @@ export const metadata: Metadata = {
   title: SITE_NAME,
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
+  verification: { google: "yzBBCLcdogJBdfNPm704lACpTxGfJu1zyLLWWkIMH7Y" },
   openGraph: {
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
